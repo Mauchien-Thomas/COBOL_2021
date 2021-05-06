@@ -1,0 +1,581 @@
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1036{\fonttbl{\f0\fnil Arial Unicode MS;}{\f1\fnil\fcharset0 Arial Unicode MS;}}
+{\colortbl ;\red0\green128\blue0;\red0\green0\blue0;\red0\green0\blue255;}
+{\*\generator Riched20 10.0.19041}\viewkind4\uc1 
+\pard\cf1\i\f0\fs20 ***************************\cf2\b\i0\par
+\cf1\b0\i * d\f1\'e9but du programme  *\cf2\b\i0\par
+\cf1\b0\i\f0 ***************************\cf2\b\i0\par
+\cf3 IDENTIFICATION\cf2  \cf3 DIVISION\cf2 . \par
+\cf3 PROGRAM-ID\cf2 .  prob2.    \par
+\cf3 DATE-WRITTEN\cf2 .  13/03/2021. \par
+\cf3 ENVIRONMENT\cf2  \cf3 DIVISION\cf2 .    \par
+\cf3 CONFIGURATION\cf2  \cf3 SECTION\cf2 .    \par
+\cf3 SPECIAL-NAMES\cf2 . \par
+\cf1\b0\i * virgule reconnue comme le symbole decimal\cf2\b\i0\par
+           \cf3 DECIMAL-POINT\cf2  \cf3 IS\cf2  \cf3 COMMA\cf2 . \par
+\cf3 INPUT-OUTPUT\cf2  \cf3 SECTION\cf2 .  \par
+\cf3 FILE-CONTROL\cf2 . \par
+     \par
+\cf1\b0\i * d\f1\'e9claration fichier s\'e9quentiel\cf2\b\i0\par
+     \cf3 SELECT\cf2  ffilm \par
+     \cf3 ASSIGN\cf2  \cf3 TO\cf2  FILE-NAME\par
+     \cf3 ORGANIZATION\cf2  \cf3 SEQUENTIAL\cf2\par
+     \cf3 ACCESS\cf2  \cf3 SEQUENTIAL\cf2\par
+     \cf3 FILE\cf2  \cf3 STATUS\cf2  \cf3 IS\cf2  FILE-STATUS.\f0  \par
+\par
+\cf1\b0\i *declaration fichier sequentiel indexe\cf2\b\i0\par
+\f1      \cf3\f0 SELECT\cf2  filmind\par
+     \cf3 ASSIGN\cf2  \cf3 TO\cf2  FILE-NAME-IND\par
+     \cf3 ORGANIZATION\cf2  \cf3 INDEXED\cf2\par
+     \cf3 ACCESS\cf2  \cf3 DYNAMIC\cf2\par
+\cf1\b0\i * cl\f1\'e9 primaire    \cf2\b\i0\par
+\f0       \cf3 RECORD\cf2  \cf3 KEY\cf2  filmind-num\par
+\cf1\b0\i * cl\f1\'e9 secondaire pour un acc\'e8s plUS Rapide si recherche sur le libell\'e9 de l'article   \cf2\b\i0\par
+\f0       \cf3 ALTERNATE\cf2  \cf3 RECORD\cf2  \cf3 KEY\cf2  filmind-mot1 \cf3 WITH\cf2  \cf3 DUPLICATES\par
+\cf2       \cf3 ALTERNATE\cf2  \cf3 RECORD\cf2  \cf3 KEY\cf2  filmind-mot\f1 2\f0  \cf3 WITH\cf2  \cf3 DUPLICATES\cf2\par
+       \cf3 FILE\cf2  \cf3 STATUS\cf2  \cf3 IS\cf2  FILE-STATUS.    \par
+    \par
+\cf3 DATA\cf2  \cf3 DIVISION\cf2 . \par
+\cf3 FILE\cf2  \cf3 SECTION\cf2 . \par
+\cf1\b0\i * d\f1\'e9claration enregistrement d'un film dans le fichier s\'e9quentiel\cf2\b\i0\par
+\cf3 FD\cf2   ffilm.\par
+01  film-enr.\par
+       02  ffilm-num      \cf3 PIC\cf2  9(6). \par
+       02  ffilm-nom      \cf3 PIC\cf2  X(50). \par
+       02  ffilm-mot1     \cf3 PIC\cf2  X(20). \par
+       02  ffilm-mot2     \cf3 PIC\cf2  X(20).\f0                      \par
+\cf1\b0\i * d\f1\'e9claration enregistrement d'un film dans le fichier s\'e9quentiel   \cf2\b\i0\par
+\cf3\f0 FD\cf2   filmind.\par
+01  filmind-enr.\par
+      \f1  \f0 02  filmind-num  \cf3 PIC\cf2  9(6). \par
+       02  filmind-nom  \cf3 PIC\cf2  X(50). \par
+       02  filmind-mot1  \cf3 PIC\cf2  X(20). \par
+       02  filmind-mot2 \cf3 PIC\cf2  X(20). \par
+        \par
+ \par
+\cf3 WORKING-STORAGE\cf2  \cf3 SECTION\cf2 . \par
+\cf1\b0\i * statut fichier lors de l'ouverture fichier n'existe pas (CODE statut 35) ou existe (CODE statut 0)\cf2\b\i0\par
+01  FILE-STATUS             \cf3 PIC\cf2  X(2). \par
+\f1  \f0       88  FILE-NOT-FOUND      \cf3 VALUE\cf2  "35". \par
+01  \cf3 REDEFINES\cf2  FILE-STATUS   \cf3 PIC\cf2  X. \par
+\f1  \f0       88  FILE-OKAY           \cf3 VALUE\cf2  "0". \par
+      \par
+\cf1\b0\i * enregistrement qui sert pour la saisie/affichage d'un etudiant\cf2\b\i0\par
+\cf1\b0\i * structure stockee sous forme de chaine\cf2\b\i0\par
+ 01  film. \par
+      02  film-num      \cf3 PIC\cf2  9(6). \par
+      02  film-nom      \cf3 PIC\cf2  X(50). \par
+      02  film-mot1     \cf3 PIC\cf2  X(20). \par
+      02  film-mot2     \cf3 PIC\cf2  X(20).    \par
+           \par
+\cf1\b0\i * declaration variable nom fichier sequentiel : 8 caracteres maxi + extension   \cf2\b\i0\par
+77  file-name     \cf3 PIC\cf2  X(20) \cf3 VALUE\cf2  "film.dat". \par
+      \par
+\cf1\b0\i * d\f1\'e9claration variable nom fichier s\'e9quentiel inDEX\'e9 : \cf2\b\i0\par
+\f0 77  file-name-ind \cf3 PIC\cf2  X(20) \cf3 VALUE\cf2  "filmind.dat".\par
+                  \par
+\cf1\b0\i * indicateur de fin de fichier\cf2\b\i0\par
+77  fin-fichier \cf3 PIC\cf2  9. \par
+\cf1\b0\i * indicateur d'interruption d'affichage\cf2\b\i0\par
+77  fin-affi    \cf3 PIC\cf2  9. \par
+      \par
+\cf1\b0\i * declaration couleurs posibles pour texte et fond\cf2\b\i0\par
+01  color-table \cf3 USAGE\cf2  comp-1. \par
+           03  black            \cf3 PIC\cf2  9(5) \cf3 VALUE\cf2  1. \par
+           03  blue             \cf3 PIC\cf2  9(5) \cf3 VALUE\cf2  2. \par
+           03  green            \cf3 PIC\cf2  9(5) \cf3 VALUE\cf2  3. \par
+           03  cyan             \cf3 PIC\cf2  9(5) \cf3 VALUE\cf2  4. \par
+           03  red              \cf3 PIC\cf2  9(5) \cf3 VALUE\cf2  5. \par
+           03  magenta          \cf3 PIC\cf2  9(5) \cf3 VALUE\cf2  6. \par
+           03  brown            \cf3 PIC\cf2  9(5) \cf3 VALUE\cf2  7. \par
+           03  white            \cf3 PIC\cf2  9(5) \cf3 VALUE\cf2  8.  \par
+           03  backgrnd-black   \cf3 PIC\cf2  9(5) \cf3 VALUE\cf2  32. \par
+           03  backgrnd-blue    \cf3 PIC\cf2  9(5) \cf3 VALUE\cf2  64. \par
+           03  backgrnd-green   \cf3 PIC\cf2  9(5) \cf3 VALUE\cf2  96. \par
+           03  backgrnd-cyan    \cf3 PIC\cf2  9(5) \cf3 VALUE\cf2  128. \par
+           03  backgrnd-red     \cf3 PIC\cf2  9(5) \cf3 VALUE\cf2  160. \par
+           03  backgrnd-magenta \cf3 PIC\cf2  9(5) \cf3 VALUE\cf2  192. \par
+           03  backgrnd-brown   \cf3 PIC\cf2  9(5) \cf3 VALUE\cf2  224. \par
+           03  backgrnd-white   \cf3 PIC\cf2  9(5) \cf3 VALUE\cf2  256. \par
+      \par
+\cf1\b0\i * lignes preparees pour l'affichage \cf2\b\i0\par
+01  ligne-tirets. \par
+        02  \cf3 FILLER\cf2  \cf3 PIC\cf2  x(80) \cf3 VALUE\cf2  \cf3 ALL\cf2  "-". \par
+01  ligne-titre. \par
+           02  \cf3 FILLER\cf2  \cf3 PIC\cf2  x \cf3 VALUE\cf2  "|". \par
+           02  \cf3 FILLER\cf2  \cf3 PIC\cf2  x(4) \cf3 VALUE\cf2  \cf3 ALL\cf2  \cf3 SPACES\cf2 . \par
+           02  \cf3 FILLER\cf2  \cf3 PIC\cf2  x(70) \cf3 VALUE\cf2  \par
+               "IUT D\f1 ept\f0  \f1 Info.\f0  - \f1 FILM -    FILMIND.DAT\f0 ". \par
+           02  \cf3 FILLER\cf2  \cf3 PIC\cf2  x(4) \cf3 VALUE\cf2  \cf3 ALL\cf2  \cf3 SPACES\cf2 . \par
+           02  \cf3 FILLER\cf2  \cf3 PIC\cf2  x \cf3 VALUE\cf2  "|". \par
+01  ligne-cadre. \par
+           02  \cf3 FILLER\cf2  \cf3 PIC\cf2  x \cf3 VALUE\cf2  "|". \par
+           02  \cf3 FILLER\cf2  \cf3 PIC\cf2  x(78) \cf3 VALUE\cf2  \cf3 ALL\cf2  \cf3 SPACES\cf2 .  \par
+           02  \cf3 FILLER\cf2  \cf3 PIC\cf2  x \cf3 VALUE\cf2  "|". \par
+            \par
+\cf1\b0\i * declaration des variables \cf2\b\i0\par
+77 nombre \cf3 PIC\cf2  9(6).\par
+77 autre \cf3 PIC\cf2  X.\par
+77 quitter \cf3 PIC\cf2  x.\par
+77 reponse \cf3 PIC\cf2  X.\par
+77  wchoix   \cf3 PIC\cf2  X.\par
+77  wmsg\f1 _\f0 erreur \cf3 PIC\cf2  x(70).\par
+77  lig      \cf3 PIC\cf2  99.\par
+77  lig2      \cf3 PIC\cf2  99.\par
+77  i        \cf3 PIC\cf2  99.\par
+77 nbre2  \cf3 PIC\cf2  9(6).\par
+\f1 77 mot \cf3 PIC\cf2  X.\f0\par
+\par
+      \par
+\cf1\b0\i * liste des \f1\'e9crans ou des parties d'\'e9cran\cf2\b\i0\par
+\cf3\f0 SCREEN\cf2  \cf3 SECTION\cf2 . \par
+01  ecran-titre. \par
+           02  \cf3 LINE\cf2  1 \cf3 COL\cf2   1 \cf3 PIC\cf2  x(80) \cf3 FROM\cf2  ligne-tirets. \par
+           02  \cf3 LINE\cf2  2 \cf3 COL\cf2   1 \cf3 PIC\cf2  x(80) \cf3 FROM\cf2  ligne-titre. \par
+           02  \cf3 LINE\cf2  3 \cf3 COL\cf2   1 \cf3 PIC\cf2  x(80) \cf3 FROM\cf2  ligne-tirets. \par
+      \par
+01  ecran-cadre. \par
+           02  \cf3 LINE\cf2   4 \cf3 COL\cf2  1 \cf3 PIC\cf2  x(80) \cf3 FROM\cf2  ligne-cadre. \par
+           02  \cf3 LINE\cf2   5 \cf3 COL\cf2  1 \cf3 PIC\cf2  x(80) \cf3 FROM\cf2  ligne-cadre. \par
+           02  \cf3 LINE\cf2   6 \cf3 COL\cf2  1 \cf3 PIC\cf2  x(80) \cf3 FROM\cf2  ligne-cadre. \par
+           02  \cf3 LINE\cf2   7 \cf3 COL\cf2  1 \cf3 PIC\cf2  x(80) \cf3 FROM\cf2  ligne-cadre.  \par
+           02  \cf3 LINE\cf2   8 \cf3 COL\cf2  1 \cf3 PIC\cf2  x(80) \cf3 FROM\cf2  ligne-cadre. \par
+           02  \cf3 LINE\cf2   9 \cf3 COL\cf2  1 \cf3 PIC\cf2  x(80) \cf3 FROM\cf2  ligne-cadre. \par
+           02  \cf3 LINE\cf2  10 \cf3 COL\cf2  1 \cf3 PIC\cf2  x(80) \cf3 FROM\cf2  ligne-cadre. \par
+           02  \cf3 LINE\cf2  11 \cf3 COL\cf2  1 \cf3 PIC\cf2  x(80) \cf3 FROM\cf2  ligne-cadre. \par
+           02  \cf3 LINE\cf2  12 \cf3 COL\cf2  1 \cf3 PIC\cf2  x(80) \cf3 FROM\cf2  ligne-cadre. \par
+           02  \cf3 LINE\cf2  13 \cf3 COL\cf2  1 \cf3 PIC\cf2  x(80) \cf3 FROM\cf2  ligne-cadre. \par
+           02  \cf3 LINE\cf2  14 \cf3 COL\cf2  1 \cf3 PIC\cf2  x(80) \cf3 FROM\cf2  ligne-cadre. \par
+           02  \cf3 LINE\cf2  15 \cf3 COL\cf2  1 \cf3 PIC\cf2  x(80) \cf3 FROM\cf2  ligne-cadre. \par
+           02  \cf3 LINE\cf2  16 \cf3 COL\cf2  1 \cf3 PIC\cf2  x(80) \cf3 FROM\cf2  ligne-cadre. \par
+           02  \cf3 LINE\cf2  17 \cf3 COL\cf2  1 \cf3 PIC\cf2  x(80) \cf3 FROM\cf2  ligne-cadre. \par
+           02  \cf3 LINE\cf2  18 \cf3 COL\cf2  1 \cf3 PIC\cf2  x(80) \cf3 FROM\cf2  ligne-cadre. \par
+           02  \cf3 LINE\cf2  19 \cf3 COL\cf2  1 \cf3 PIC\cf2  x(80) \cf3 FROM\cf2  ligne-cadre. \par
+           02  \cf3 LINE\cf2  20 \cf3 COL\cf2  1 \cf3 PIC\cf2  x(80) \cf3 FROM\cf2  ligne-cadre. \par
+           02  \cf3 LINE\cf2  21 \cf3 COL\cf2  1 \cf3 PIC\cf2  x(80) \cf3 FROM\cf2  ligne-cadre. \par
+           02  \cf3 LINE\cf2  22 \cf3 COL\cf2  1 \cf3 PIC\cf2  x(80) \cf3 FROM\cf2  ligne-cadre. \par
+           02  \cf3 LINE\cf2  23 \cf3 COL\cf2  1 \cf3 PIC\cf2  x(80) \cf3 FROM\cf2  ligne-cadre. \par
+           02  \cf3 LINE\cf2  24 \cf3 COL\cf2  1 \cf3 PIC\cf2  x(80) \cf3 FROM\cf2  ligne-cadre.   \par
+           02  \cf3 LINE\cf2  25 \cf3 COL\cf2  1 \cf3 PIC\cf2  x(80) \cf3 FROM\cf2  ligne-tirets. \par
+           \par
+01  ecran-menu. \par
+     02  \cf3 LINE\cf2   5 \cf3 COL\cf2  39 \cf3 COLOR\cf2  \f1 green\f0  \cf3 VALUE\cf2  "MENU". \par
+     02  \cf3 LINE\cf2   7 \cf3 COL\cf2  22  \par
+     \cf3 VALUE\cf2  "Creation du fichier indexe.\f1 .\f0 .\f1 ...\f0 .\f1 .......\f0 ..1". \par
+     02  \cf3 LINE\cf2   10 \cf3 COL\cf2  22  \par
+     \cf3 VALUE\cf2  "Liste des films (paquets de 8)\f1 .........\f0 .\f1 .\f0 .2". \par
+     02  \cf3 LINE\cf2  11 \cf3 COL\cf2  22  \par
+     \cf3 VALUE\cf2  "Recherche par mot-cle...\f1 .............\f0 ....\f1  \f0 3".  \par
+     02  \cf3 LINE\cf2  12 \cf3 COL\cf2  22\par
+     \cf3 VALUE\cf2  "Recherche par numero...\f1 .........\f0 ....\f1 .\f0 .....4".   \par
+     02  \cf3 LINE\cf2  13 \cf3 COL\cf2  22\par
+     \cf3 VALUE\cf2  "Saisie d'un nouveau film.\f1 ..........\f0 .......5"\f1 .\f0   \par
+     02  \cf3 LINE\cf2  14 \cf3 COL\cf2  22\par
+     \cf3 VALUE\cf2  "Modification d'un film\f1 .............\f0 .......6"\f1 .\f0\par
+     02  \cf3 LINE\cf2  15 \cf3 COL\cf2  22\par
+     \cf3 VALUE\cf2  "Suppression d'un film.\f1 ..............\f0 ......7"\f1 .\f0   \par
+     02  \cf3 LINE\cf2  19 \cf3 COL\cf2  22 \par
+     \cf3 VALUE\cf2  "Quitter.......\f1 ...................\f0 ......\f1 .\f0 ..Q\f1 ".\f0\par
+     02  \cf3 LINE\cf2  20 \cf3 COL\cf2  22 \par
+     \cf3 VALUE\cf2  "Votre choix : ". \par
+     02  \cf3 HIGHLIGHT\cf2  \cf3 COLOR\cf2  blue \cf3 UPPER\cf2  \cf3 PIC\cf2  X \cf3 USING\cf2  wchoix.    \par
+      \par
+\cf1\b0\i *saisie film\cf2\b\i0\par
+01  ecran-un-film. \par
+        02  \cf3 LINE\cf2   5 \cf3 COL\cf2   8 \cf3 VALUE\cf2  "NUMERO    : ".  \par
+        02  \cf3 LINE\cf2  5  \cf3 COL\cf2   20 \cf3 HIGHLIGHT\cf2  \cf3 COLOR\cf2  brown\par
+        \cf3 PIC\cf2  9(6) \cf3 FROM\cf2  \f1 film-num\f0 .\par
+        02  \cf3 LINE\cf2   8 \cf3 COL\cf2   8 \cf3 VALUE\cf2  "NOM : ".  \par
+        02  \cf3 REQUIRED\cf2  \cf3 HIGHLIGHT\cf2  \cf3 PIC\cf2  x(50) \cf3 USING\cf2  film-nom. \par
+        02  \cf3 LINE\cf2  10 \cf3 COL\cf2   8 \cf3 VALUE\cf2  "MOT CLE 1 : ".  \par
+        02  \cf3 REQUIRED\cf2  \cf3 HIGHLIGHT\cf2  \cf3 PIC\cf2  x(20) \cf3 USING\cf2  film-mot1.  \par
+        02  \cf3 LINE\cf2  12 \cf3 COL\cf2   8 \cf3 VALUE\cf2  "MOT CLE 2 : ".  \par
+        02  \cf3 REQUIRED\cf2  \cf3 HIGHLIGHT\cf2  \cf3 PIC\cf2  x(20) \cf3 USING\cf2  film-mot2. \par
+        \par
+01  ecran-\f1 affi\f0 -film. \par
+        02  \cf3 LINE\cf2   5 \cf3 COL\cf2   8 \cf3 VALUE\cf2  "NUMERO    : ".  \par
+        02  \cf3 LINE\cf2  5  \cf3 COL\cf2   20 \cf3 HIGHLIGHT\cf2  \cf3 COLOR\cf2  brown\par
+        \cf3 PIC\cf2  9(6) \cf3 FROM\cf2  nbre2.\par
+        02  \cf3 LINE\cf2   8 \cf3 COL\cf2   8 \cf3 VALUE\cf2  "NOM : ".  \par
+        02  \cf3 REQUIRED\cf2  \cf3 HIGHLIGHT\cf2  \cf3 PIC\cf2  x(50) \cf3 USING\cf2  film-nom. \par
+        02  \cf3 LINE\cf2  10 \cf3 COL\cf2   8 \cf3 VALUE\cf2  "MOT CLE 1 : ".  \par
+        02  \cf3 REQUIRED\cf2  \cf3 HIGHLIGHT\cf2  \cf3 PIC\cf2  x(20) \cf3 USING\cf2  film-mot1.  \par
+        02  \cf3 LINE\cf2  12 \cf3 COL\cf2   8 \cf3 VALUE\cf2  "MOT CLE 2 : ".  \par
+        02  \cf3 REQUIRED\cf2  \cf3 HIGHLIGHT\cf2  \cf3 PIC\cf2  x(20) \cf3 USING\cf2  film-mot2. \par
+      \par
+         \par
+      \par
+\cf1\b0\i *liste de film par paquet de 8    \cf2\b\i0\par
+01  ecran-affi-film-paquet. \par
+        02  \cf3 LINE\cf2  lig \cf3 COL\cf2  8 \cf3 COLOR\cf2  \f1 red\f0  \cf3 PIC\cf2  9(6) \cf3 FROM\cf2  film-num. \par
+        02  \cf3 LINE\cf2  lig \cf3 COL\cf2  16 \cf3 PIC\cf2  x(50) \cf3 FROM\cf2  film-nom. \par
+        02  \cf3 LINE\cf2  lig2 \cf3 COL\cf2  40 \cf3 PIC\cf2  x(20) \cf3 FROM\cf2  film-mot1. \par
+        02  \cf3 LINE\cf2  lig2 \cf3 COL\cf2  20 \cf3 PIC\cf2  x(20) \cf3 FROM\cf2  film-mot2. \par
+\par
+              \par
+01  ecran-rech-num. \par
+       02  \cf3 LINE\cf2   5 \cf3 COL\cf2   8 \cf3 VALUE\cf2  "NUM\f1 ERO  \f0 : ". \par
+       02  \cf3 REQUIRED\cf2  \cf3 HIGHLIGHT\cf2  \cf3 COLOR\cf2  brown  \par
+       \cf3 PIC\cf2  9(3)  \cf3 USING\cf2  nombre. \par
+\f1        \f0  02  \cf3 COLOR\cf2  \f1 green\f0  \cf3 LINE\cf2  \f1 23\f0  \cf3 COL\cf2   8 \cf3 VALUE\cf2  \par
+       "Appuyer sur la touche Entree\f1  pour continuer\f0 ...".\par
+\par
+      \par
+01  ecran-rech-cle. \par
+       02  \cf3 LINE\cf2   5 \cf3 COL\cf2   8 \cf3 VALUE\cf2  "MOT-CLE    : ". \par
+       02  \cf3 REQUIRED\cf2  \cf3 HIGHLIGHT\cf2  \cf3 COLOR\cf2  brown  \par
+       \cf3 PIC\cf2  x(20)  \cf3 USING\cf2  film-mot1.\par
+\f1       \f0  02  \cf3 COLOR\cf2  \f1 green\f0  \cf3 LINE\cf2  \f1 17\f0  \cf3 COL\cf2   8 \cf3 VALUE\cf2  \par
+       "Appuyer sur la touche Entree\f1  pour continuer\f0 ...".\par
+\par
+                   \par
+\cf1\b0\i * validation creation d'un film  \cf2\b\i0\par
+01  ecran-valide-create. \par
+       02  \cf3 LINE\cf2  22 \cf3 COL\cf2  8 \par
+        \cf3 VALUE\cf2  "Valider creation (repondre par O/N): ". \par
+        02  \cf3 HIGHLIGHT\cf2  \cf3 COLOR\cf2  \f1 blue\f0  \cf3 UPPER\cf2  \cf3 PIC\cf2  X \cf3 USING\cf2  reponse. \par
+        02  \cf3 LINE\cf2  23 \cf3 COL\cf2  8 \par
+        \cf3 VALUE\cf2  "Autre \f1 film\f0  ?(repondre par O/N): ". \par
+        02  \cf3 HIGHLIGHT\cf2  \cf3 COLOR\cf2  \f1 blue\f0  \cf3 UPPER\cf2  \cf3 PIC\cf2  X \cf3 USING\cf2  autre.      \par
+\cf1\b0\i * validation modification d'un film  \cf2\b\i0\par
+01  ecran-valide-modif. \par
+      02  \cf3 LINE\cf2  22 \cf3 COL\cf2  8 \par
+      \cf3 VALUE\cf2  "Valider modification (repondre par O/N): ". \par
+      02  \cf3 HIGHLIGHT\cf2  \cf3 COLOR\cf2  \f1 blue\f0  \cf3 UPPER\cf2  \cf3 PIC\cf2  X \cf3 USING\cf2  reponse. \par
+\f1       \f0 02  \cf3 LINE\cf2  23 \cf3 COL\cf2  8 \par
+      \cf3 VALUE\cf2  "Autre \f1 film\f0  ?(repondre par O/N): ". \par
+   \f1  \f0   02  \cf3 HIGHLIGHT\cf2  \cf3 COLOR\cf2  \f1 blue\f0  \cf3 UPPER\cf2  \cf3 PIC\cf2  X \cf3 USING\cf2  autre.\par
+      \par
+\cf1\b0\i * validation suppression d'un film \cf2\b\i0\par
+01  ecran-valide-suppr. \par
+      02  \cf3 LINE\cf2  22 \cf3 COL\cf2  8 \par
+      \cf3 VALUE\cf2  "Valider \f1 la \f0 suppression \f1 de l'enregistrement\f0 (O/N): ". \par
+      02  \cf3 HIGHLIGHT\cf2  \cf3 COLOR\cf2  \f1 blue\f0  \cf3 UPPER\cf2  \cf3 PIC\cf2  X \cf3 USING\cf2  \f1 r\f0 eponse.\par
+\f1       \f0 02  \cf3 LINE\cf2  23 \cf3 COL\cf2  8 \par
+      \cf3 VALUE\cf2  "Autre \f1 film\f0  ?(repondre par O/N): ". \par
+   \f1  \f0   02  \cf3 HIGHLIGHT\cf2  \cf3 COLOR\cf2  \f1 blue\f0  \cf3 UPPER\cf2  \cf3 PIC\cf2  X \cf3 USING\cf2  autre.\par
+ \par
+ \f1 01 ecran-stop-saisie.\par
+\f0      02  \cf3\f1 COLOR\cf2  green \cf3\f0 LINE\cf2  \f1 17\f0  \cf3 COL\cf2  8\f1  \cf3\f0 VALUE\cf2\par
+    "\f1 L'appuie\f0  sur\f1  \f0 Entree\f1  stoppe\f0  \f1 la saisie du film.\f0 ". \par
+                \cf1\b0\i\par
+*si tout le fichier est parcouru\cf2\b\i0\par
+01  ecran-msg-affi. \par
+       02  \cf3 LINE\cf2  21 \cf3 COL\cf2  8 \cf3 VALUE\cf2  "Il n'y a plus de film.". \par
+       02  \cf3 COLOR\cf2  \f1 green\f0  \cf3 LINE\cf2  23 \cf3 COL\cf2   8 \cf3 VALUE\cf2  \par
+       "Appuyer sur la touche Entree pour continuer ...". \par
+          \par
+01 ecran-msg-affi-2. \par
+      02  \cf3 LINE\cf2  23 \cf3 COL\cf2  8 \par
+      \cf3 VALUE\cf2  "Voulez-vous continuer ?(repondre par O/N): ". \par
+      02  \cf3 HIGHLIGHT\cf2  \cf3 COLOR\cf2\f1  blue\f0  \cf3 UPPER\cf2  \cf3 PIC\cf2  X \cf3 USING\cf2  autre.\par
+           \par
+\cf1\b0\i *recherche d'un numero inexistant\cf2\b\i0\par
+01  ecran-num-erreur. \par
+       02  \cf3 LINE\cf2  22 \cf3 COL\cf2  8 \cf3 VALUE\cf2  "Le numero n'existe pas.". \par
+                   \par
+\cf1\b0\i * affichage MESSAGE d'erreur      \cf2\b\i0\par
+01  ecran-erreur. \par
+    \f1  \f0 02  \cf3 LINE\cf2  22 \cf3 COL\cf2  6 \cf3 COLOR\cf2  \f1 red\f0  \cf3 PIC\cf2  x(70) \cf3 FROM\cf2  \f1 w\f0 msg_erreur\f1 .\f0\par
+     02  \cf3 LINE\cf2  \f1 17\f0  \cf3 COL\cf2  6 \cf3 COLOR\cf2  \f1 green\f0   \par
+     \cf3 VALUE\cf2  "Appuyer sur la touche Entree...". \par
+\par
+\cf3 PROCEDURE\cf2  \cf3 DIVISION\cf2 .\par
+\cf3 DECLARATIVES\cf2 .\par
+FILE-ERROR \cf3 SECTION\cf2 .\par
+      \cf3 USE\cf2  \cf3 AFTER\cf2  \cf3 STANDARD\cf2  \cf3 ERROR\cf2  \cf3 PROCEDURE\cf2\par
+      \cf3 ON\cf2  ffilm.\par
+\cf3 END\cf2  \cf3 DECLARATIVES\cf2 .\par
+            \par
+main.   \par
+\par
+\f1      \cf3\f0 PERFORM\cf2  affi-titre.\par
+    \cf3 PERFORM\cf2  \cf3 WITH\cf2  \cf3 TEST\cf2  \cf3 AFTER\cf2  \cf3 UNTIL\cf2  wchoix = "Q"\par
+        \cf3 PERFORM\cf2  affi-menu\par
+        \cf3 IF\cf2  wchoix > "1" \cf3 AND\cf2  < "7"\par
+          \cf3 OPEN\cf2  \cf3 INPUT\cf2  filmind\par
+           \cf3 IF\cf2  file-not\f1 -\f0 found\par
+             \cf3 MOVE\cf2\f1  \cf3\f0 ALL\cf2  \cf3 SPACES\cf2  \cf3 TO\cf2  wmsg_erreur\par
+             \cf3 MOVE\cf2\par
+       "Le fichier s\f1\'e9quentiel indexe des film n'existe pas !"\par
+                    \cf3 TO\cf2  wmsg_erreur\par
+              \cf3 DISPLAY\cf2  ecran-erreur\par
+              \cf3 PERFORM\cf2  get-return\par
+              \cf3 MOVE\cf2  "0" \cf3 TO\cf2  wchoix\par
+            \cf3 ELSE\cf2  \cf3 CLOSE\cf2  filmind\par
+             \cf3 END-IF\cf2                 \par
+           \cf3 END-IF\cf2\par
+             \par
+             \cf3 EVALUATE\cf2  wchoix\par
+             \cf3 WHEN\cf2  "1"\par
+                 \cf3 PERFORM\cf2  creation\par
+             \cf3 WHEN\cf2  "2"\par
+                   \cf3 PERFORM\cf2  affi-fichier-seq-paquet\par
+            \cf3 WHEN\cf2  "3"\par
+                   \cf3 PERFORM\cf2  affi-rech-cle                               \par
+             \cf3 WHEN\cf2  "4"\par
+                    \cf3 PERFORM\cf2  affi-rech-num                                \par
+             \cf3 WHEN\cf2  "5"\par
+                   \cf3 PERFORM\cf2  saisie2 \par
+             \cf3 WHEN\cf2  "6"\par
+                   \cf3 PERFORM\cf2  modif2\par
+            \cf3 WHEN\cf2  "7"\par
+                    \cf3 PERFORM\cf2  suppr2                         \par
+                                \par
+             \cf3 END-EVALUATE\cf2\par
+           \cf3 END-PERFORM\cf2 .\par
+fin.    \par
+           \cf3 STOP\cf2  \cf3 RUN\cf2 .\f0  \par
+get-return.\cf3\par
+\cf1\b0\i * attend l'appui sur la touche Entr\f1\'e9e\cf3\b\i0\par
+\cf2      \cf3 ACCEPT\cf2  \cf3 OMITTED\cf2 .\cf3\par
+      \par
+\cf2 affi-menu. \cf3\par
+\cf2      \cf3 PERFORM\cf2  affi-titre.\cf3\par
+\cf2       \cf3 DISPLAY\cf2  ecran-menu.\cf3\par
+\cf2       \cf3 ACCEPT\cf2   ecran-menu.\cf3\par
+           \par
+\cf2 affi-titre.\cf3\par
+\cf2        \cf3 DISPLAY\cf2  ecran-titre.    \cf3\par
+\cf2        \cf3 DISPLAY\cf2  ecran-cadre.\par
+\par
+clearscreen.\cf3\par
+\cf2      \cf3 DISPLAY\cf2  "" \cf3 NO\cf2  \cf3 ADVANCING\cf2  \cf3 WITH\cf2  \cf3 BLANK\cf2  \cf3 SCREEN\cf2 .\cf3\par
+\par
+\par
+\cf2 creation.\cf3\par
+\cf2     \cf3 OPEN\cf2  \cf3 INPUT\cf2  ffilm.\cf3\par
+\cf2     \cf3 OPEN\cf2  \cf3 OUTPUT\cf2  filmind.\cf3\par
+\cf2     \cf3 MOVE\cf2  0 \cf3 TO\cf2  fin-fichier.\cf3\par
+\cf2     \cf3 PERFORM\cf2  \cf3 WITH\cf2  \cf3 TEST\cf2  \cf3 AFTER\cf2  \cf3 UNTIL\cf2  fin-fichier = 1 \cf3\par
+\cf2         \cf3 READ\cf2  ffilm\cf3\par
+\cf2             \cf3 AT\cf2  \cf3 END\cf2  \cf3 MOVE\cf2  1 \cf3 TO\cf2  fin-fichier\cf3\par
+\cf2             \cf3 NOT\cf2  \cf3 AT\cf2  \cf3 END\cf2   \cf3\par
+\cf2             \cf3 MOVE\cf2  film-enr \cf3 TO\cf2  filmind-enr\cf3\par
+\cf2             \cf3 WRITE\cf2  filmind-enr\cf3\par
+\cf2                 \cf3 INVALID\cf2  \cf3 KEY\cf2     \cf3\par
+\cf2       \cf3 DISPLAY\cf2  "Le fichier sequentiel indexe n'existe pas"\cf3\par
+\cf2                 \cf3 PERFORM\cf2  get-return\cf3\par
+\cf2               \cf3 END-WRITE\par
+\cf2             \cf3 END-READ\par
+\cf2            \cf3 END-PERFORM\par
+\cf2            \cf3 CLOSE\cf2  ffilm.\cf3\par
+\cf2            \cf3 CLOSE\cf2  filmind.\cf3\par
+\cf2            \cf3 MOVE\cf2  \cf3 ALL\cf2  \cf3 SPACES\cf2  \cf3 TO\cf2  wmsg_erreur.\cf3\par
+\cf2            \cf3 MOVE\cf2  "Creation TERMINEE." \cf3 TO\cf2  wmsg_erreur.\cf3\par
+\cf2            \cf3 DISPLAY\cf2  ecran-erreur.\cf3\par
+\cf2            \cf3 PERFORM\cf2  get-return.       \par
+\par
+\par
+saisie2.\par
+      \cf3\f0 PERFORM\cf2  \cf3 WITH\cf2  \cf3 TEST\cf2  \cf3 AFTER\cf2  \cf3 UNTIL\cf2  \f1 autre\f0  = '\f1 N\f0 '\par
+     \f1   \cf3\f0 PERFORM\cf2  \f1 clearscreen\f0\par
+     \f1   \cf3\f0 PERFORM\cf2  \f1 saisie\f0\par
+   \f1    \cf3\f0 END-PERFORM\cf2 .\f1\par
+\par
+    \cf3\par
+\cf2 saisie.\par
+      \cf3 OPEN\cf2  \cf3 INPUT\cf2  filmind. \cf3\par
+\cf2        \cf3 MOVE\cf2  0 \cf3 TO\cf2  fin-fichier i.        \cf3\par
+\cf2        \cf3 PERFORM\cf2  \cf3 WITH\cf2  \cf3 TEST\cf2  \cf3 AFTER\cf2  \cf3 UNTIL\cf2  fin-fichier = 1 \cf3\par
+\cf2            \cf3 READ\cf2  filmind \cf3 NEXT\par
+\cf2                 \cf3 AT\cf2  \cf3 END\cf2  \cf3 MOVE\cf2  1 \cf3 TO\cf2  fin-fichier,\cf3 MOVE\cf2  filmind-num \par
+\cf3              TO\cf2  nbre2             \cf3\par
+\cf2             \cf3 END-READ\cf2  \cf3\par
+\cf2           \cf3 END-PERFORM\par
+\cf2           \cf3 CLOSE\cf2  filmind.\cf3\par
+\cf2           \cf3 ADD\cf2  1 \cf3 TO\cf2  nbre2 \par
+\par
+           \cf3 OPEN\cf2  \cf3 INPUT\cf2  filmind.  \par
+            \cf3 IF\cf2  FILE-NOT-FOUND\cf3\par
+\cf2                \cf3 OPEN\cf2  \cf3 OUTPUT\cf2  filmind\cf3\par
+\cf2             \cf3 ELSE\par
+\cf2                 \cf3 CLOSE\cf2  filmind\cf3\par
+\cf2                 \cf3 OPEN\cf2  \cf3 I-O\cf2  filmind      \cf3\par
+\cf2              \cf3 END-IF\cf2 .\par
+              \cf3 MOVE\cf2  \cf3 ALL\cf2  \cf3 SPACES\cf2  \cf3 TO\cf2  film.\cf3\par
+\cf2               \cf3 PERFORM\cf2  affi-titre.\par
+              \cf3 MOVE\cf2  nbre2 \cf3 TO\cf2  film-num              \par
+              \cf3 DISPLAY\cf2  ecran-un-film.\par
+              \cf3 DISPLAY\cf2  ecran-stop-saisie                  \par
+              \cf3 ACCEPT\cf2   ecran-un-film.\cf3\par
+\cf2               \cf3 DISPLAY\cf2  ecran-valide-create.\cf3\par
+\cf2               \cf3 ACCEPT\cf2   ecran-valide-create.\par
+\cf3               \par
+\cf2               \cf3 IF\cf2  reponse ='O'  \par
+                  \cf3 MOVE\cf2  film \cf3 TO\cf2  filmind-enr                                                                                  \cf3\par
+\cf2                   \cf3 WRITE\cf2  filmind-enr\cf3\par
+\cf2                \cf3 END-IF\par
+\cf2\par
+\f0                  \cf3\f1 CLOSE\cf2  filmind.\f0                                                    \cf3\par
+\par
+\par
+\cf2\f1 modif2.\par
+      \cf3\f0 PERFORM\cf2  \cf3 WITH\cf2  \cf3 TEST\cf2  \cf3 AFTER\cf2  \cf3 UNTIL\cf2  \f1 autre\f0  = '\f1 N\f0 '\par
+     \f1   \cf3\f0 PERFORM\cf2  \f1 clearscreen\f0\par
+     \f1   \cf3\f0 PERFORM\cf2  \f1 modif\f0\par
+   \f1    \cf3\f0 END-PERFORM\cf2 .\f1\par
+\cf3\f0\par
+\par
+\cf2 modif.       \par
+           \cf3 OPEN\cf2  \cf3 I-O\cf2  filmind.\cf3\par
+\cf2            \cf3 PERFORM\cf2  affi-titre.\cf3\par
+\cf2            \cf3 DISPLAY\cf2  ecran-rech-num.\cf3\par
+\cf2            \cf3 ACCEPT\cf2  ecran-rech-num.\cf3\par
+\cf2            \cf3 MOVE\cf2  \f1 nombre\f0  \cf3 TO\cf2  filmind-num.\cf3\par
+\cf2            \cf3 READ\cf2  filmind \cf3 INVALID\cf2  \cf3 KEY\par
+\cf2            \cf3 DISPLAY\cf2  "film existe pas !" \cf3\par
+\cf2            \cf3 PERFORM\cf2  get-return\cf3\par
+\cf2            \cf3 NOT\cf2  \cf3 INVALID\cf2  \cf3 KEY\par
+\cf2            \cf3 MOVE\cf2  filmind-enr \cf3 TO\cf2  film\cf3\par
+\cf2            \cf3 DISPLAY\cf2  ecran-un-film\par
+           \cf3 ACCEPT\cf2  ecran-\f1 un\f0 -film    \cf3\par
+\cf2            \cf3 MOVE\cf2  film \cf3 TO\cf2  filmind-enr\cf3\par
+\cf2                \cf3 REWRITE\cf2  filmind-enr\cf3\par
+\cf2                \cf3 INVALID\cf2  \cf3 KEY\cf2  \cf3\par
+\cf2                    \cf3 DISPLAY\cf2  "erreur-enregristrement"                    \cf3\par
+\cf2                \cf3 NOT\cf2  \cf3 INVALID\cf2  \cf3 KEY\par
+\cf2                    \cf3 DISPLAY\cf2  ecran-valide-modif  \cf3\par
+\cf2                    \cf3 ACCEPT\cf2  ecran-valide-modif                                                      \par
+               \cf3 END-REWRITE\par
+\cf2            \cf3 END-READ\cf2 .\cf3\par
+\cf2            \cf3 CLOSE\cf2  filmind.    \par
+\par
+\f1 suppr2.\par
+      \cf3\f0 PERFORM\cf2  \cf3 WITH\cf2  \cf3 TEST\cf2  \cf3 AFTER\cf2  \cf3 UNTIL\cf2  \f1 autre\f0  = '\f1 N\f0 '\par
+     \f1   \cf3\f0 PERFORM\cf2  \f1 clearscreen\f0\par
+     \f1   \cf3\f0 PERFORM\cf2  \f1 suppr\f0\par
+   \f1    \cf3\f0 END-PERFORM\cf2 .\f1\par
+\f0                                                                                                              \cf3\par
+\cf2 suppr.\cf3\par
+\cf2            \cf3 OPEN\cf2  \cf3 I-O\cf2  filmind.\cf3\par
+\cf2            \cf3 PERFORM\cf2  affi-titre.\cf3\par
+\cf2            \cf3 DISPLAY\cf2  ecran-rech-num.\cf3\par
+\cf2            \cf3 ACCEPT\cf2  ecran-rech-num.\cf3\par
+\cf2            \cf3 MOVE\cf2  \f1 nombre\f0  \cf3 TO\cf2  filmind-num.\cf3\par
+\cf2            \cf3 READ\cf2  filmind \cf3 INVALID\cf2  \cf3 KEY\par
+\cf2                \cf3 DISPLAY\cf2  "le film n'existe pas !" \cf3\par
+\cf2                \cf3 PERFORM\cf2  get-return\cf3\par
+\cf2                \cf3 NOT\cf2  \cf3 INVALID\cf2  \cf3 KEY\par
+\cf2                \cf3 MOVE\cf2  filmind-enr \cf3 TO\cf2  film\cf3\par
+\cf2                \cf3 DISPLAY\cf2  ecran-un-film\cf3\par
+\cf2                \cf3 DELETE\cf2  filmind\cf3\par
+\cf2                    \cf3 INVALID\cf2  \cf3 KEY\par
+\cf2                    \cf3 DISPLAY\cf2  "Erreur suppression !"\cf3\par
+\cf2                    \cf3 NOT\cf2  \cf3 INVALID\cf2  \cf3 KEY\par
+\cf2                    \cf3 DISPLAY\cf2   ecran-valide-suppr\cf3\par
+\cf2                    \cf3 ACCEPT\cf2  ecran-valide-suppr\cf3\par
+\cf2                \cf3 END-DELETE\par
+\cf2            \cf3 END-READ\cf2 .\cf3\par
+\cf2            \cf3 CLOSE\cf2  filmind.           \cf3\par
+           \par
+\cf2 affi-fichier-seq-paquet.\cf3\par
+\cf2           \cf3 OPEN\cf2  \cf3 INPUT\cf2  f\f1 ilmind\f0 . \cf3\par
+\cf2            \cf3 MOVE\cf2  0 \cf3 TO\cf2  fin-fichier i. \cf3\par
+\cf2            \cf3 DISPLAY\cf2  ecran-cadre.    \cf3\par
+\cf2            \cf3 MOVE\cf2  0 \cf3 TO\cf2  lig  \cf3\par
+\cf2            \cf3 PERFORM\cf2  \cf3 WITH\cf2  \cf3 TEST\cf2  \cf3 AFTER\cf2  \cf3 UNTIL\cf2  fin-fichier = 1 \cf3\par
+\cf2              \cf3 READ\cf2  f\f1 ilmind\f0  \cf3 NEXT\par
+\cf2                \cf3 AT\cf2  \cf3 END\cf2  \cf3 MOVE\cf2  1 \cf3 TO\cf2  fin-fichier\cf3\par
+\cf2                \cf3 NOT\cf2  \cf3 AT\cf2  \cf3 END\cf2    \cf3\par
+\cf2                  \cf3 MOVE\cf2  film\f1 ind\f0 -enr \cf3 TO\cf2  film\cf3\par
+\cf2                  \cf3 ADD\cf2  2 \cf3 TO\cf2  i\cf3\par
+\cf2                  \cf3\par
+\cf2                  \cf3 COMPUTE\cf2  lig = 3 + i\cf3\par
+\cf2                  \cf3 COMPUTE\cf2  lig2 = 4 + i\cf3\par
+                 \par
+\cf2                  \cf3 DISPLAY\cf2  ecran-affi-film-paquet\cf3\par
+\cf2                  \cf3 IF\cf2  i = 16\cf3\par
+\cf2                    \cf3 DISPLAY\cf2  ecran-msg-affi-2\cf3\par
+\cf2                    \cf3 ACCEPT\cf2  ecran-msg-affi-2            \cf3\par
+\cf2                    \cf3 IF\cf2  autre = 'N'\cf3\par
+\cf2                      \cf3 MOVE\cf2  1 \cf3 TO\cf2  fin-fichier\cf3\par
+                      \par
+\cf2                    \cf3 END-IF\cf2  \cf3\par
+\cf2          \cf3\par
+\cf2                    \cf3 MOVE\cf2  0 \cf3 TO\cf2  i\cf3\par
+\cf2                    \cf3 DISPLAY\cf2  ecran-cadre      \cf3\par
+\cf2                    \cf3 MOVE\cf2  5 \cf3 TO\cf2  lig\cf3\par
+\cf2                    \cf3 MOVE\cf2  5 \cf3 TO\cf2  lig2\cf3\par
+\cf2                  \cf3 END-IF\par
+\cf2              \cf3 END-READ\par
+\cf2            \cf3 END-PERFORM\cf2 .\cf3\par
+\cf2            \cf3 DISPLAY\cf2  ecran-msg-affi.\cf3\par
+\cf2            \cf3 PERFORM\cf2  get-return.\cf3\par
+\cf2            \cf3 CLOSE\cf2  f\f1 ilmind\f0 .\par
+\cf3\par
+\cf2 affi-rech-num.\cf3\par
+\cf2            \cf3 OPEN\cf2  \cf3 INPUT\cf2  filmind.\cf3\par
+\cf2            \cf3 MOVE\cf2  \cf3 ALL\cf2  \cf3 SPACES\cf2  \cf3 TO\cf2  film-num.\cf3\par
+\cf2            \cf3 DISPLAY\cf2  ecran-cadre.\cf3\par
+\cf2            \cf3 DISPLAY\cf2  ecran-rech-num.\cf3\par
+\cf2            \cf3 ACCEPT\cf2   ecran-rech-num.\cf3\par
+\cf2            \cf3 MOVE\cf2  \f1 nombre\f0  \cf3 TO\cf2  filmind-num.\cf3\par
+\cf2            \cf3 READ\cf2  filmind\cf3\par
+\cf2            \cf3 INVALID\cf2  \cf3 KEY\par
+\cf2       \cf3 MOVE\cf2  \cf3 ALL\cf2  \cf3 SPACES\cf2  \cf3 TO\cf2  wmsg_erreur\cf3\par
+\cf2       \cf3 MOVE\cf2  "Le numero de film n'existe pas." \cf3 TO\cf2  wmsg\f1 _\f0 erreur\cf3\par
+\cf2              \cf3 DISPLAY\cf2  ecran-erreur\cf3\par
+\cf2              \cf3 PERFORM\cf2  get-return\cf3\par
+\cf2            \cf3 NOT\cf2  \cf3 INVALID\cf2  \cf3 KEY\par
+\cf2              \cf3 MOVE\cf2  filmind-enr \cf3 TO\cf2  film\cf3\par
+\cf2              \cf3 DISPLAY\cf2  \f1 ecran-un\f0 -film\par
+            \f1  \cf3 DISPLAY\cf2  ecran-msg-affi\f0                                \par
+             \cf3 PERFORM\cf2  get-return    \cf3\par
+\cf2            \cf3 END-READ\cf2 .\cf3\par
+\cf2            \cf3 CLOSE\cf2  filmind. \par
+\cf3\par
+\cf2 affi-rech-\f1 cle\f0 .\cf3\par
+\cf2            \cf3 OPEN\cf2  \cf3 INPUT\cf2  f\f1 ilm\f0 ind.\cf3\par
+\cf2                \cf3 MOVE\cf2  \cf3 ALL\cf2  \cf3 SPACES\cf2  \cf3 TO\cf2  \f1 film-mot1\f0 .\cf3\par
+\cf2                \cf3 DISPLAY\cf2  ecran-cadre.\cf3\par
+\cf2                \cf3 DISPLAY\cf2  ecran-rech\f1 -cle\f0 .\cf3\par
+\cf2                \cf3 ACCEPT\cf2   ecran-rech-\f1 cle\f0 .\cf3\par
+\cf2                \cf3 MOVE\cf2  \f1 film-mot1\f0  \cf3 TO\cf2  f\f1 ilm\f0 ind-\f1 mot1\f0 .          \par
+               \cf3 START\cf2  f\f1 ilm\f0 ind \cf3 KEY\cf2 =f\f1 ilmind-mot1\cf3\f0\par
+               INVALID KEY\par
+\cf2                \cf3 MOVE\cf2  \cf3 ALL\cf2  \cf3 SPACES\cf2  \cf3 TO\cf2  \f1 w\f0 msg_erreur\cf3\par
+\cf2                \cf3 MOVE\cf2  "L\f1 e film\f0  n'existe pas." \cf3 TO\cf2  \f1 w\f0 msg_erreur\cf3\par
+\cf2                \cf3 DISPLAY\cf2  ecran-erreur\f1  \cf3\f0\par
+\cf2                \cf3 PERFORM\cf2  get-return\f1  \cf3\f0\par
+\cf2                \cf3 NOT\cf2  \cf3 INVALID\cf2  \cf3 KEY\par
+\cf2                \cf3 MOVE\cf2  0 \cf3 TO\cf2  fin-fichier i\cf3\par
+\cf2                \cf3 DISPLAY\cf2  ecran-cadre\cf3\par
+\cf2                \cf3 MOVE\cf2  8 \cf3 TO\cf2  lig\par
+           \cf3\par
+\cf2                \cf3 PERFORM\cf2  \cf3 WITH\cf2  \cf3 TEST\cf2  \cf3 AFTER\cf2  \cf3 UNTIL\cf2  fin-fichier = 1\cf3     \par
+\cf2                \cf3 READ\cf2  f\f1 ilmind\f0  \cf3 NEXT\par
+\cf2                  \cf3 AT\cf2  \cf3 END\cf2  \cf3 MOVE\cf2  1 \cf3 TO\cf2  fin-fichier\cf3\par
+\cf2                  \cf3 NOT\cf2  \cf3 AT\cf2  \cf3 END\cf2  \cf3\par
+\cf2                    \cf3 IF\cf2  \cf3 NOT\cf2  f\f1 ilm\f0 ind-\f1 mot1\f0 =\f1 film-mot1\par
+\f0  \f1  \f0                  \cf3 MOVE\cf2  1 \cf3 TO\cf2  fin-fichier\cf3\par
+\cf2                    \cf3 ELSE\par
+\cf2                      \cf3 MOVE\cf2  f\f1 ilmind\f0 -enr \cf3 TO\cf2  \f1 film\cf3\f0\par
+\cf2                      \cf3 ADD\cf2  2 \cf3 TO\cf2  i\cf3\par
+\cf2                      \cf3 COMPUTE\cf2  lig = 5 + i\cf3\par
+\cf2                      \cf3 COMPUTE\cf2  lig2 = 6 + i              \cf3\par
+\cf2                      \cf3 DISPLAY\cf2  ecran-affi-\f1 film\f0 -paquet\par
+\cf3\par
+\cf2                      \cf3 IF\cf2  i = 8\cf3\par
+\cf2                        \cf3 DISPLAY\cf2  ecran-msg-affi-2\cf3\par
+\cf2                        \cf3 ACCEPT\cf2  ecran-msg-affi-2 \cf3\par
+\cf2                        \cf3 IF\cf2  autre='N'\cf3\par
+\cf2                            \cf3 MOVE\cf2  1 \cf3 TO\cf2  fin-fichier\cf3\par
+\cf2                            \cf3 PERFORM\cf2  get-return                    \cf3\par
+\cf2                        \cf3 END-IF\cf2                                                \cf3\par
+\cf2                        \cf3 MOVE\cf2  0 \cf3 TO\cf2  i        \cf3\par
+\cf2                        \cf3 DISPLAY\cf2  ecran-cadre\cf3\par
+\cf2                        \cf3 MOVE\cf2  5 \cf3 TO\cf2  lig\cf3\par
+\cf2                        \cf3 MOVE\cf2  5 \cf3 TO\cf2  lig2                \cf3\par
+\cf2                      \cf3 END-IF\par
+                   END-IF\par
+\cf2                \cf3 END-READ\par
+\cf2                \cf3 END-PERFORM\par
+\cf2                \cf3 DISPLAY\cf2  ecran-msg-affi\cf3\par
+\cf2                \cf3 PERFORM\cf2  get-return\cf3\par
+\cf2                \cf3 END-START\cf2 .            \par
+               \cf3 CLOSE\cf2  f\f1 ilm\f0 ind.\par
+\cf3\par
+\cf2\f1          \f0            \cf3\par
+\cf2                \cf3\par
+}
+ 

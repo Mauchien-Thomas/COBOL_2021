@@ -1,0 +1,576 @@
+      ***************************
+      * début du programme  *
+      ***************************
+       IDENTIFICATION DIVISION. 
+       PROGRAM-ID.  prob2.    
+       DATE-WRITTEN.  13/03/2021. 
+       ENVIRONMENT DIVISION.    
+       CONFIGURATION SECTION.    
+       SPECIAL-NAMES. 
+      * virgule reconnue comme le symbole decimal
+                  DECIMAL-POINT IS COMMA. 
+       INPUT-OUTPUT SECTION.  
+       FILE-CONTROL. 
+            
+      * déclaration fichier séquentiel
+            SELECT ffilm 
+            ASSIGN TO FILE-NAME
+            ORGANIZATION SEQUENTIAL
+            ACCESS SEQUENTIAL
+            FILE STATUS IS FILE-STATUS. 
+      
+      *declaration fichier sequentiel indexe
+            SELECT filmind
+            ASSIGN TO FILE-NAME-IND
+            ORGANIZATION INDEXED
+            ACCESS DYNAMIC
+      * clé primaire    
+             RECORD KEY filmind-num
+      * clé secondaire pour un accès plUS Rapide si recherche sur le libellé de l'article   
+             ALTERNATE RECORD KEY filmind-mot1 WITH DUPLICATES
+             ALTERNATE RECORD KEY filmind-mot2 WITH DUPLICATES
+              FILE STATUS IS FILE-STATUS.    
+           
+       DATA DIVISION. 
+       FILE SECTION. 
+      * déclaration enregistrement d'un film dans le fichier séquentiel
+       FD  ffilm.
+       01  film-enr.
+              02  ffilm-num      PIC 9(6). 
+              02  ffilm-nom      PIC X(50). 
+              02  ffilm-mot1     PIC X(20). 
+              02  ffilm-mot2     PIC X(20).                     
+      * déclaration enregistrement d'un film dans le fichier séquentiel   
+       FD  filmind.
+       01  filmind-enr.
+              02  filmind-num  PIC 9(6). 
+              02  filmind-nom  PIC X(50). 
+              02  filmind-mot1  PIC X(20). 
+              02  filmind-mot2 PIC X(20). 
+               
+        
+       WORKING-STORAGE SECTION. 
+      * statut fichier lors de l'ouverture fichier n'existe pas (CODE statut 35) ou existe (CODE statut 0)
+       01  FILE-STATUS             PIC X(2). 
+              88  FILE-NOT-FOUND      VALUE "35". 
+       01  REDEFINES FILE-STATUS   PIC X. 
+              88  FILE-OKAY           VALUE "0". 
+             
+      * enregistrement qui sert pour la saisie/affichage d'un etudiant
+      * structure stockee sous forme de chaine
+        01  film. 
+             02  film-num      PIC 9(6). 
+             02  film-nom      PIC X(50). 
+             02  film-mot1     PIC X(20). 
+             02  film-mot2     PIC X(20).    
+                  
+      * declaration variable nom fichier sequentiel : 8 caracteres maxi + extension   
+       77  file-name     PIC X(20) VALUE "film.dat". 
+             
+      * déclaration variable nom fichier séquentiel inDEXé : 
+       77  file-name-ind PIC X(20) VALUE "filmind.dat".
+                         
+      * indicateur de fin de fichier
+       77  fin-fichier PIC 9. 
+      * indicateur d'interruption d'affichage
+       77  fin-affi    PIC 9. 
+             
+      * declaration couleurs posibles pour texte et fond
+       01  color-table USAGE comp-1. 
+                  03  black            PIC 9(5) VALUE 1. 
+                  03  blue             PIC 9(5) VALUE 2. 
+                  03  green            PIC 9(5) VALUE 3. 
+                  03  cyan             PIC 9(5) VALUE 4. 
+                  03  red              PIC 9(5) VALUE 5. 
+                  03  magenta          PIC 9(5) VALUE 6. 
+                  03  brown            PIC 9(5) VALUE 7. 
+                  03  white            PIC 9(5) VALUE 8.  
+                  03  backgrnd-black   PIC 9(5) VALUE 32. 
+                  03  backgrnd-blue    PIC 9(5) VALUE 64. 
+                  03  backgrnd-green   PIC 9(5) VALUE 96. 
+                  03  backgrnd-cyan    PIC 9(5) VALUE 128. 
+                  03  backgrnd-red     PIC 9(5) VALUE 160. 
+                  03  backgrnd-magenta PIC 9(5) VALUE 192. 
+                  03  backgrnd-brown   PIC 9(5) VALUE 224. 
+                  03  backgrnd-white   PIC 9(5) VALUE 256. 
+             
+      * lignes preparees pour l'affichage 
+       01  ligne-tirets. 
+               02  FILLER PIC x(80) VALUE ALL "-". 
+       01  ligne-titre. 
+                  02  FILLER PIC x VALUE "|". 
+                  02  FILLER PIC x(4) VALUE ALL SPACES. 
+                  02  FILLER PIC x(70) VALUE 
+                      "IUT Dept Info. - FILM -    FILMIND.DAT". 
+                  02  FILLER PIC x(4) VALUE ALL SPACES. 
+                  02  FILLER PIC x VALUE "|". 
+       01  ligne-cadre. 
+                  02  FILLER PIC x VALUE "|". 
+                  02  FILLER PIC x(78) VALUE ALL SPACES.  
+                  02  FILLER PIC x VALUE "|". 
+                   
+      * declaration des variables 
+       77 nombre PIC 9(6).
+       77 autre PIC X.
+       77 quitter PIC x.
+       77 reponse PIC X.
+       77  wchoix   PIC X.
+       77  wmsg_erreur PIC x(70).
+       77  lig      PIC 99.
+       77  lig2      PIC 99.
+       77  i        PIC 99.
+       77 nbre2  PIC 9(6).
+       77 mot PIC X.
+      
+             
+      * liste des écrans ou des parties d'écran
+       SCREEN SECTION. 
+       01  ecran-titre. 
+                  02  LINE 1 COL  1 PIC x(80) FROM ligne-tirets. 
+                  02  LINE 2 COL  1 PIC x(80) FROM ligne-titre. 
+                  02  LINE 3 COL  1 PIC x(80) FROM ligne-tirets. 
+             
+       01  ecran-cadre. 
+                  02  LINE  4 COL 1 PIC x(80) FROM ligne-cadre. 
+                  02  LINE  5 COL 1 PIC x(80) FROM ligne-cadre. 
+                  02  LINE  6 COL 1 PIC x(80) FROM ligne-cadre. 
+                  02  LINE  7 COL 1 PIC x(80) FROM ligne-cadre.  
+                  02  LINE  8 COL 1 PIC x(80) FROM ligne-cadre. 
+                  02  LINE  9 COL 1 PIC x(80) FROM ligne-cadre. 
+                  02  LINE 10 COL 1 PIC x(80) FROM ligne-cadre. 
+                  02  LINE 11 COL 1 PIC x(80) FROM ligne-cadre. 
+                  02  LINE 12 COL 1 PIC x(80) FROM ligne-cadre. 
+                  02  LINE 13 COL 1 PIC x(80) FROM ligne-cadre. 
+                  02  LINE 14 COL 1 PIC x(80) FROM ligne-cadre. 
+                  02  LINE 15 COL 1 PIC x(80) FROM ligne-cadre. 
+                  02  LINE 16 COL 1 PIC x(80) FROM ligne-cadre. 
+                  02  LINE 17 COL 1 PIC x(80) FROM ligne-cadre. 
+                  02  LINE 18 COL 1 PIC x(80) FROM ligne-cadre. 
+                  02  LINE 19 COL 1 PIC x(80) FROM ligne-cadre. 
+                  02  LINE 20 COL 1 PIC x(80) FROM ligne-cadre. 
+                  02  LINE 21 COL 1 PIC x(80) FROM ligne-cadre. 
+                  02  LINE 22 COL 1 PIC x(80) FROM ligne-cadre. 
+                  02  LINE 23 COL 1 PIC x(80) FROM ligne-cadre. 
+                  02  LINE 24 COL 1 PIC x(80) FROM ligne-cadre.   
+                  02  LINE 25 COL 1 PIC x(80) FROM ligne-tirets. 
+                  
+       01  ecran-menu. 
+            02  LINE  5 COL 39 COLOR green VALUE "MENU". 
+            02  LINE  7 COL 22  
+            VALUE "Creation du fichier indexe................1". 
+            02  LINE  10 COL 22  
+            VALUE "Liste des films (paquets de 8)............2". 
+            02  LINE 11 COL 22  
+            VALUE "Recherche par mot-cle.................... 3".  
+            02  LINE 12 COL 22
+            VALUE "Recherche par numero......................4".   
+            02  LINE 13 COL 22
+            VALUE "Saisie d'un nouveau film..................5".  
+            02  LINE 14 COL 22
+            VALUE "Modification d'un film....................6".
+            02  LINE 15 COL 22
+            VALUE "Suppression d'un film.....................7".  
+            02  LINE 19 COL 22 
+            VALUE "Quitter...................................Q".
+            02  LINE 20 COL 22 
+            VALUE "Votre choix : ". 
+            02  HIGHLIGHT COLOR blue UPPER PIC X USING wchoix.    
+             
+      *saisie film
+       01  ecran-un-film. 
+               02  LINE  5 COL  8 VALUE "NUMERO    : ".  
+               02  LINE 5  COL  20 HIGHLIGHT COLOR brown
+               PIC 9(6) FROM film-num.
+               02  LINE  8 COL  8 VALUE "NOM : ".  
+               02  REQUIRED HIGHLIGHT PIC x(50) USING film-nom. 
+               02  LINE 10 COL  8 VALUE "MOT CLE 1 : ".  
+               02  REQUIRED HIGHLIGHT PIC x(20) USING film-mot1.  
+               02  LINE 12 COL  8 VALUE "MOT CLE 2 : ".  
+               02  REQUIRED HIGHLIGHT PIC x(20) USING film-mot2. 
+               
+       01  ecran-affi-film. 
+               02  LINE  5 COL  8 VALUE "NUMERO    : ".  
+               02  LINE 5  COL  20 HIGHLIGHT COLOR brown
+               PIC 9(6) FROM nbre2.
+               02  LINE  8 COL  8 VALUE "NOM : ".  
+               02  REQUIRED HIGHLIGHT PIC x(50) USING film-nom. 
+               02  LINE 10 COL  8 VALUE "MOT CLE 1 : ".  
+               02  REQUIRED HIGHLIGHT PIC x(20) USING film-mot1.  
+               02  LINE 12 COL  8 VALUE "MOT CLE 2 : ".  
+               02  REQUIRED HIGHLIGHT PIC x(20) USING film-mot2. 
+             
+                
+             
+      *liste de film par paquet de 8    
+       01  ecran-affi-film-paquet. 
+               02  LINE lig COL 8 COLOR red PIC 9(6) FROM film-num. 
+               02  LINE lig COL 16 PIC x(50) FROM film-nom. 
+               02  LINE lig2 COL 40 PIC x(20) FROM film-mot1. 
+               02  LINE lig2 COL 20 PIC x(20) FROM film-mot2. 
+      
+                     
+       01  ecran-rech-num. 
+              02  LINE  5 COL  8 VALUE "NUMERO  : ". 
+              02  REQUIRED HIGHLIGHT COLOR brown  
+              PIC 9(3)  USING nombre. 
+               02  COLOR green LINE 23 COL  8 VALUE 
+              "Appuyer sur la touche Entree pour continuer...".
+      
+             
+       01  ecran-rech-cle. 
+              02  LINE  5 COL  8 VALUE "MOT-CLE    : ". 
+              02  REQUIRED HIGHLIGHT COLOR brown  
+              PIC x(20)  USING film-mot1.
+              02  COLOR green LINE 17 COL  8 VALUE 
+              "Appuyer sur la touche Entree pour continuer...".
+      
+                          
+      * validation creation d'un film  
+       01  ecran-valide-create. 
+              02  LINE 22 COL 8 
+               VALUE "Valider creation (repondre par O/N): ". 
+               02  HIGHLIGHT COLOR blue UPPER PIC X USING reponse. 
+               02  LINE 23 COL 8 
+               VALUE "Autre film ?(repondre par O/N): ". 
+               02  HIGHLIGHT COLOR blue UPPER PIC X USING autre.      
+      * validation modification d'un film  
+       01  ecran-valide-modif. 
+             02  LINE 22 COL 8 
+             VALUE "Valider modification (repondre par O/N): ". 
+             02  HIGHLIGHT COLOR blue UPPER PIC X USING reponse. 
+             02  LINE 23 COL 8 
+             VALUE "Autre film ?(repondre par O/N): ". 
+             02  HIGHLIGHT COLOR blue UPPER PIC X USING autre.
+             
+      * validation suppression d'un film 
+       01  ecran-valide-suppr. 
+             02  LINE 22 COL 8 
+             VALUE "Valider la suppression de l'enregistrement(O/N): ". 
+             02  HIGHLIGHT COLOR blue UPPER PIC X USING reponse.
+             02  LINE 23 COL 8 
+             VALUE "Autre film ?(repondre par O/N): ". 
+             02  HIGHLIGHT COLOR blue UPPER PIC X USING autre.
+        
+        01 ecran-stop-saisie.
+            02  COLOR green LINE 17 COL 8 VALUE
+           "L'appuie sur Entree stoppe la saisie du film.". 
+                       
+      *si tout le fichier est parcouru
+       01  ecran-msg-affi. 
+              02  LINE 21 COL 8 VALUE "Il n'y a plus de film.". 
+              02  COLOR green LINE 23 COL  8 VALUE 
+              "Appuyer sur la touche Entree pour continuer ...". 
+                 
+       01 ecran-msg-affi-2. 
+             02  LINE 23 COL 8 
+             VALUE "Voulez-vous continuer ?(repondre par O/N): ". 
+             02  HIGHLIGHT COLOR blue UPPER PIC X USING autre.
+                  
+      *recherche d'un numero inexistant
+       01  ecran-num-erreur. 
+              02  LINE 22 COL 8 VALUE "Le numero n'existe pas.". 
+                          
+      * affichage MESSAGE d'erreur      
+       01  ecran-erreur. 
+            02  LINE 22 COL 6 COLOR red PIC x(70) FROM wmsg_erreur.
+            02  LINE 17 COL 6 COLOR green  
+            VALUE "Appuyer sur la touche Entree...". 
+      
+       PROCEDURE DIVISION.
+       DECLARATIVES.
+       FILE-ERROR SECTION.
+             USE AFTER STANDARD ERROR PROCEDURE
+             ON ffilm.
+       END DECLARATIVES.
+                   
+       main.   
+      
+            PERFORM affi-titre.
+           PERFORM WITH TEST AFTER UNTIL wchoix = "Q"
+               PERFORM affi-menu
+               IF wchoix > "1" AND < "7"
+                 OPEN INPUT filmind
+                  IF file-not-found
+                    MOVE ALL SPACES TO wmsg_erreur
+                    MOVE
+              "Le fichier séquentiel indexe des film n'existe pas !"
+                           TO wmsg_erreur
+                     DISPLAY ecran-erreur
+                     PERFORM get-return
+                     MOVE "0" TO wchoix
+                   ELSE CLOSE filmind
+                    END-IF                
+                  END-IF
+                    
+                    EVALUATE wchoix
+                    WHEN "1"
+                        PERFORM creation
+                    WHEN "2"
+                          PERFORM affi-fichier-seq-paquet
+                   WHEN "3"
+                          PERFORM affi-rech-cle                               
+                    WHEN "4"
+                           PERFORM affi-rech-num                                
+                    WHEN "5"
+                          PERFORM saisie2 
+                    WHEN "6"
+                          PERFORM modif2
+                   WHEN "7"
+                           PERFORM suppr2                         
+                                       
+                    END-EVALUATE
+                  END-PERFORM.
+       fin.    
+                  STOP RUN. 
+       get-return.
+      * attend l'appui sur la touche Entrée
+            ACCEPT OMITTED.
+             
+       affi-menu. 
+            PERFORM affi-titre.
+             DISPLAY ecran-menu.
+             ACCEPT  ecran-menu.
+                  
+       affi-titre.
+              DISPLAY ecran-titre.    
+              DISPLAY ecran-cadre.
+      
+       clearscreen.
+            DISPLAY "" NO ADVANCING WITH BLANK SCREEN.
+      
+      
+       creation.
+           OPEN INPUT ffilm.
+           OPEN OUTPUT filmind.
+           MOVE 0 TO fin-fichier.
+           PERFORM WITH TEST AFTER UNTIL fin-fichier = 1 
+               READ ffilm
+                   AT END MOVE 1 TO fin-fichier
+                   NOT AT END  
+                   MOVE film-enr TO filmind-enr
+                   WRITE filmind-enr
+                       INVALID KEY    
+             DISPLAY "Le fichier sequentiel indexe n'existe pas"
+                       PERFORM get-return
+                     END-WRITE
+                   END-READ
+                  END-PERFORM
+                  CLOSE ffilm.
+                  CLOSE filmind.
+                  MOVE ALL SPACES TO wmsg_erreur.
+                  MOVE "Creation TERMINEE." TO wmsg_erreur.
+                  DISPLAY ecran-erreur.
+                  PERFORM get-return.       
+      
+      
+       saisie2.
+             PERFORM WITH TEST AFTER UNTIL autre = 'N'
+              PERFORM clearscreen
+              PERFORM saisie
+             END-PERFORM.
+      
+           
+       saisie.
+             OPEN INPUT filmind. 
+              MOVE 0 TO fin-fichier i.        
+              PERFORM WITH TEST AFTER UNTIL fin-fichier = 1 
+                  READ filmind NEXT
+                       AT END MOVE 1 TO fin-fichier,MOVE filmind-num 
+                    TO nbre2             
+                   END-READ 
+                 END-PERFORM
+                 CLOSE filmind.
+                 ADD 1 TO nbre2 
+      
+                  OPEN INPUT filmind.  
+                   IF FILE-NOT-FOUND
+                      OPEN OUTPUT filmind
+                   ELSE
+                       CLOSE filmind
+                       OPEN I-O filmind      
+                    END-IF.
+                     MOVE ALL SPACES TO film.
+                     PERFORM affi-titre.
+                     MOVE nbre2 TO film-num              
+                     DISPLAY ecran-un-film.
+                     DISPLAY ecran-stop-saisie                  
+                     ACCEPT  ecran-un-film.
+                     DISPLAY ecran-valide-create.
+                     ACCEPT  ecran-valide-create.
+                     
+                     IF reponse ='O'  
+                         MOVE film TO filmind-enr                                                                                  
+                         WRITE filmind-enr
+                      END-IF
+      
+                        CLOSE filmind.                                                   
+      
+      
+       modif2.
+             PERFORM WITH TEST AFTER UNTIL autre = 'N'
+              PERFORM clearscreen
+              PERFORM modif
+             END-PERFORM.
+      
+      
+       modif.       
+                  OPEN I-O filmind.
+                  PERFORM affi-titre.
+                  DISPLAY ecran-rech-num.
+                  ACCEPT ecran-rech-num.
+                  MOVE nombre TO filmind-num.
+                  READ filmind INVALID KEY
+                  DISPLAY "film existe pas !" 
+                  PERFORM get-return
+                  NOT INVALID KEY
+                  MOVE filmind-enr TO film
+                  DISPLAY ecran-un-film
+                  ACCEPT ecran-un-film    
+                  MOVE film TO filmind-enr
+                      REWRITE filmind-enr
+                      INVALID KEY 
+                          DISPLAY "erreur-enregristrement"                    
+                      NOT INVALID KEY
+                          DISPLAY ecran-valide-modif  
+                          ACCEPT ecran-valide-modif                                                      
+                      END-REWRITE
+                  END-READ.
+                  CLOSE filmind.    
+      
+       suppr2.
+             PERFORM WITH TEST AFTER UNTIL autre = 'N'
+              PERFORM clearscreen
+              PERFORM suppr
+             END-PERFORM.
+                                                                                                                    
+       suppr.
+                  OPEN I-O filmind.
+                  PERFORM affi-titre.
+                  DISPLAY ecran-rech-num.
+                  ACCEPT ecran-rech-num.
+                  MOVE nombre TO filmind-num.
+                  READ filmind INVALID KEY
+                      DISPLAY "le film n'existe pas !" 
+                      PERFORM get-return
+                      NOT INVALID KEY
+                      MOVE filmind-enr TO film
+                      DISPLAY ecran-un-film
+                      DELETE filmind
+                          INVALID KEY
+                          DISPLAY "Erreur suppression !"
+                          NOT INVALID KEY
+                          DISPLAY  ecran-valide-suppr
+                          ACCEPT ecran-valide-suppr
+                      END-DELETE
+                  END-READ.
+                  CLOSE filmind.           
+                  
+       affi-fichier-seq-paquet.
+                 OPEN INPUT filmind. 
+                  MOVE 0 TO fin-fichier i. 
+                  DISPLAY ecran-cadre.    
+                  MOVE 0 TO lig  
+                  PERFORM WITH TEST AFTER UNTIL fin-fichier = 1 
+                    READ filmind NEXT
+                      AT END MOVE 1 TO fin-fichier
+                      NOT AT END   
+                        MOVE filmind-enr TO film
+                        ADD 2 TO i
+                        
+                        COMPUTE lig = 3 + i
+                        COMPUTE lig2 = 4 + i
+                        
+                        DISPLAY ecran-affi-film-paquet
+                        IF i = 16
+                          DISPLAY ecran-msg-affi-2
+                          ACCEPT ecran-msg-affi-2            
+                          IF autre = 'N'
+                            MOVE 1 TO fin-fichier
+                             
+                          END-IF 
+                
+                          MOVE 0 TO i
+                          DISPLAY ecran-cadre      
+                          MOVE 5 TO lig
+                          MOVE 5 TO lig2
+                        END-IF
+                    END-READ
+                  END-PERFORM.
+                  DISPLAY ecran-msg-affi.
+                  PERFORM get-return.
+                  CLOSE filmind.
+      
+       affi-rech-num.
+                  OPEN INPUT filmind.
+                  MOVE ALL SPACES TO film-num.
+                  DISPLAY ecran-cadre.
+                  DISPLAY ecran-rech-num.
+                  ACCEPT  ecran-rech-num.
+                  MOVE nombre TO filmind-num.
+                  READ filmind
+                  INVALID KEY
+             MOVE ALL SPACES TO wmsg_erreur
+             MOVE "Le numero de film n'existe pas." TO wmsg_erreur
+                    DISPLAY ecran-erreur
+                    PERFORM get-return
+                  NOT INVALID KEY
+                    MOVE filmind-enr TO film
+                    DISPLAY ecran-un-film
+                    DISPLAY ecran-msg-affi                               
+                    PERFORM get-return    
+                  END-READ.
+                  CLOSE filmind. 
+      
+       affi-rech-cle.
+                  OPEN INPUT filmind.
+                      MOVE ALL SPACES TO film-mot1.
+                      DISPLAY ecran-cadre.
+                      DISPLAY ecran-rech-cle.
+                      ACCEPT  ecran-rech-cle.
+                      MOVE film-mot1 TO filmind-mot1.          
+                      START filmind KEY=filmind-mot1
+                      INVALID KEY
+                      MOVE ALL SPACES TO wmsg_erreur
+                      MOVE "Le film n'existe pas." TO wmsg_erreur
+                      DISPLAY ecran-erreur 
+                      PERFORM get-return 
+                      NOT INVALID KEY
+                      MOVE 0 TO fin-fichier i
+                      DISPLAY ecran-cadre
+                      MOVE 8 TO lig
+                  
+                      PERFORM WITH TEST AFTER UNTIL fin-fichier = 1    
+                      READ filmind NEXT
+                        AT END MOVE 1 TO fin-fichier
+                        NOT AT END 
+                          IF NOT filmind-mot1=film-mot1
+                          MOVE 1 TO fin-fichier
+                          ELSE
+                            MOVE filmind-enr TO film
+                            ADD 2 TO i
+                            COMPUTE lig = 5 + i
+                            COMPUTE lig2 = 6 + i              
+                            DISPLAY ecran-affi-film-paquet
+      
+                            IF i = 8
+                              DISPLAY ecran-msg-affi-2
+                              ACCEPT ecran-msg-affi-2 
+                              IF autre='N'
+                                  MOVE 1 TO fin-fichier
+                                  PERFORM get-return                    
+                              END-IF                                               
+                              MOVE 0 TO i        
+                              DISPLAY ecran-cadre
+                              MOVE 5 TO lig
+                              MOVE 5 TO lig2                
+                            END-IF
+                          END-IF
+                      END-READ
+                      END-PERFORM
+                      DISPLAY ecran-msg-affi
+                      PERFORM get-return
+                      END-START.            
+                      CLOSE filmind.
+      
+                           
+                      
